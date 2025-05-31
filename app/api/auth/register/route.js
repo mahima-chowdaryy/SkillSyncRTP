@@ -1,33 +1,39 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json();
+    const { name, email, password, role, skills } = await req.json();
 
     // Connect to MongoDB
     await connectDB();
 
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
+        { error: 'User already exists' },
+        { status: 400 }
       );
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new user
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || 'student',
+      skills: skills || [],
+    });
+
+    await user.save();
 
     // Generate JWT token
     const token = jwt.sign(
@@ -48,7 +54,7 @@ export async function POST(req) {
       token,
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Registration error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -32,6 +33,21 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const User = mongoose.models.User || mongoose.model('User', userSchema);
+// Add method to compare passwords
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Ensure we're not overwriting the model if it already exists
+let User;
+try {
+  User = mongoose.model('User');
+} catch {
+  User = mongoose.model('User', userSchema);
+}
 
 export default User; 

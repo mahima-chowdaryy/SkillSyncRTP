@@ -21,11 +21,14 @@ const verifyToken = (req) => {
 // GET all users (with pagination)
 export async function GET(req) {
   try {
-    const decoded = verifyToken(req);
-    if (!decoded) {
+    console.log('Starting GET /api/users request');
+    
+    // Check MongoDB URI
+    if (!process.env.MONGODB_URI) {
+      console.error('MONGODB_URI is not defined');
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'Database configuration error' },
+        { status: 500 }
       );
     }
 
@@ -34,10 +37,25 @@ export async function GET(req) {
     const limit = parseInt(searchParams.get('limit')) || 10;
     const search = searchParams.get('search') || '';
 
-    await connectDB();
+    console.log('Request parameters:', { page, limit, search });
+
+    try {
+      console.log('Attempting database connection...');
+      await connectDB();
+      console.log('Database connection successful');
+    } catch (dbError) {
+      console.error('Database connection failed:', {
+        name: dbError.name,
+        message: dbError.message,
+        stack: dbError.stack
+      });
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
 
     const query = {
-      _id: { $ne: decoded.userId }, // Exclude current user
       ...(search && {
         $or: [
           { name: { $regex: search, $options: 'i' } },
@@ -46,25 +64,45 @@ export async function GET(req) {
       }),
     };
 
-    const users = await User.find(query)
-      .select('-password')
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    console.log('Executing query:', JSON.stringify(query, null, 2));
 
-    const total = await User.countDocuments(query);
+    try {
+      const users = await User.find(query)
+        .select('-password')
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: -1 });
 
-    return NextResponse.json({
-      users,
-      pagination: {
-        total,
-        page,
-        pages: Math.ceil(total / limit),
-      },
-    });
+      const total = await User.countDocuments(query);
+      console.log(`Query successful: Found ${users.length} users out of ${total} total`);
+
+      return NextResponse.json({
+        users,
+        pagination: {
+          total,
+          page,
+          pages: Math.ceil(total / limit),
+        },
+      });
+    } catch (queryError) {
+      console.error('Database query failed:', {
+        name: queryError.name,
+        message: queryError.message,
+        stack: queryError.stack
+      });
+      return NextResponse.json(
+        { error: 'Error executing database query' },
+        { status: 500 }
+      );
+    }
   } catch (error) {
+    console.error('Unexpected error in GET /api/users:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     return NextResponse.json(
-      { error: 'Error fetching users' },
+      { error: 'An unexpected error occurred' },
       { status: 500 }
     );
   }

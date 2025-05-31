@@ -32,11 +32,7 @@ export default function StatusUpdateForm({ project, onClose }) {
 
       // Send status update email to all project members
       for (const member of project.members) {
-        await sendRequestStatusEmail(member, project, {
-          status: formData.status,
-          details: formData.details,
-          updated_by: 'Project Lead',
-        });
+        await sendRequestStatusEmail(member, project, formData.status, formData.details);
       }
 
       toast.success('Project status updated successfully!');
@@ -73,51 +69,49 @@ export default function StatusUpdateForm({ project, onClose }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-300">
-              Project Status
+              Status
             </label>
             <select
               id="status"
               name="status"
-              required
               value={formData.status}
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
-              <option value="Planning">Planning</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Recruiting">Recruiting</option>
-              <option value="Completed">Completed</option>
+              <option value="planning">Planning</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="on_hold">On Hold</option>
             </select>
           </div>
 
           <div>
             <label htmlFor="details" className="block text-sm font-medium text-gray-300">
-              Update Details
+              Details
             </label>
             <textarea
               id="details"
               name="details"
               rows={4}
-              required
               value={formData.details}
               onChange={handleChange}
+              placeholder="Add any additional details about the status update..."
               className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Provide details about the status update..."
             />
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800"
+              className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Updating...' : 'Update Status'}
             </button>

@@ -1,258 +1,188 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
+import Project from '@/models/Project';
 import bcrypt from 'bcryptjs';
+import { students } from '@/lib/sampleData';
 
-const sampleUsers = [
-  {
-    name: "John Smith",
-    email: "john@example.com",
-    password: "password123",
-    bio: "Computer Science student passionate about AI and machine learning",
-    skills: ["Python", "Machine Learning", "Data Analysis", "TensorFlow"],
-    education: [
-      {
-        school: "Stanford University",
-        degree: "B.S. Computer Science",
-        startYear: 2020,
-        endYear: 2024
-      }
-    ]
-  },
-  {
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    password: "password123",
-    bio: "Full-stack developer with a focus on web technologies",
-    skills: ["JavaScript", "React", "Node.js", "MongoDB", "AWS"],
-    education: [
-      {
-        school: "MIT",
-        degree: "B.S. Computer Science",
-        startYear: 2019,
-        endYear: 2023
-      }
-    ]
-  },
-  {
-    name: "Michael Chen",
-    email: "michael@example.com",
-    password: "password123",
-    bio: "Mobile app developer and UI/UX enthusiast",
-    skills: ["Swift", "React Native", "UI/UX Design", "Firebase"],
-    education: [
-      {
-        school: "UC Berkeley",
-        degree: "B.S. Computer Science",
-        startYear: 2021,
-        endYear: 2025
-      }
-    ]
-  },
-  {
-    name: "Emily Davis",
-    email: "emily@example.com",
-    password: "password123",
-    bio: "Data scientist and research enthusiast",
-    skills: ["R", "Python", "SQL", "Data Visualization", "Statistics"],
-    education: [
-      {
-        school: "Harvard University",
-        degree: "B.S. Data Science",
-        startYear: 2020,
-        endYear: 2024
-      }
-    ]
-  },
-  {
-    name: "Alex Rodriguez",
-    email: "alex@example.com",
-    password: "password123",
-    bio: "Cybersecurity specialist and ethical hacker",
-    skills: ["Network Security", "Penetration Testing", "Linux", "Python"],
-    education: [
-      {
-        school: "Georgia Tech",
-        degree: "B.S. Cybersecurity",
-        startYear: 2019,
-        endYear: 2023
-      }
-    ]
-  },
-  {
-    name: "Sophie Kim",
-    email: "sophie@example.com",
-    password: "password123",
-    bio: "Game developer and 3D artist",
-    skills: ["Unity", "C#", "3D Modeling", "Game Design"],
-    education: [
-      {
-        school: "USC",
-        degree: "B.S. Game Development",
-        startYear: 2021,
-        endYear: 2025
-      }
-    ]
-  },
-  {
-    name: "David Wilson",
-    email: "david@example.com",
-    password: "password123",
-    bio: "Cloud architect and DevOps engineer",
-    skills: ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD"],
-    education: [
-      {
-        school: "University of Washington",
-        degree: "B.S. Computer Engineering",
-        startYear: 2018,
-        endYear: 2022
-      }
-    ]
-  },
-  {
-    name: "Olivia Martinez",
-    email: "olivia@example.com",
-    password: "password123",
-    bio: "Blockchain developer and crypto enthusiast",
-    skills: ["Solidity", "Web3.js", "Ethereum", "Smart Contracts"],
-    education: [
-      {
-        school: "NYU",
-        degree: "B.S. Computer Science",
-        startYear: 2020,
-        endYear: 2024
-      }
-    ]
-  },
-  {
-    name: "James Thompson",
-    email: "james@example.com",
-    password: "password123",
-    bio: "AI researcher and deep learning specialist",
-    skills: ["PyTorch", "Computer Vision", "NLP", "Deep Learning"],
-    education: [
-      {
-        school: "Carnegie Mellon",
-        degree: "B.S. Artificial Intelligence",
-        startYear: 2019,
-        endYear: 2023
-      }
-    ]
-  },
-  {
-    name: "Emma Brown",
-    email: "emma@example.com",
-    password: "password123",
-    bio: "Frontend developer and accessibility advocate",
-    skills: ["React", "TypeScript", "CSS", "Accessibility", "UI Testing"],
-    education: [
-      {
-        school: "University of Michigan",
-        degree: "B.S. Computer Science",
-        startYear: 2021,
-        endYear: 2025
-      }
-    ]
-  },
-  {
-    name: "Daniel Lee",
-    email: "daniel@example.com",
-    password: "password123",
-    bio: "Backend developer and database specialist",
-    skills: ["Java", "Spring Boot", "PostgreSQL", "Microservices"],
-    education: [
-      {
-        school: "University of Texas",
-        degree: "B.S. Software Engineering",
-        startYear: 2020,
-        endYear: 2024
-      }
-    ]
-  },
-  {
-    name: "Isabella Garcia",
-    email: "isabella@example.com",
-    password: "password123",
-    bio: "UX researcher and product designer",
-    skills: ["User Research", "Figma", "Prototyping", "User Testing"],
-    education: [
-      {
-        school: "University of California",
-        degree: "B.S. Human-Computer Interaction",
-        startYear: 2019,
-        endYear: 2023
-      }
-    ]
-  },
-  {
-    name: "William Taylor",
-    email: "william@example.com",
-    password: "password123",
-    bio: "Robotics engineer and hardware enthusiast",
-    skills: ["C++", "ROS", "Arduino", "Computer Vision"],
-    education: [
-      {
-        school: "MIT",
-        degree: "B.S. Robotics Engineering",
-        startYear: 2021,
-        endYear: 2025
-      }
-    ]
-  },
-  {
-    name: "Ava Anderson",
-    email: "ava@example.com",
-    password: "password123",
-    bio: "Mobile developer and AR/VR specialist",
-    skills: ["Unity", "C#", "AR/VR Development", "3D Graphics"],
-    education: [
-      {
-        school: "Stanford University",
-        degree: "B.S. Computer Science",
-        startYear: 2020,
-        endYear: 2024
-      }
-    ]
-  },
-  {
-    name: "Noah White",
-    email: "noah@example.com",
-    password: "password123",
-    bio: "Full-stack developer and open source contributor",
-    skills: ["JavaScript", "React", "Node.js", "GraphQL", "Docker"],
-    education: [
-      {
-        school: "University of Illinois",
-        degree: "B.S. Computer Science",
-        startYear: 2019,
-        endYear: 2023
-      }
-    ]
-  }
-];
+export async function GET() {
+  return POST();
+}
 
 export async function POST() {
   try {
+    console.log('Starting database seeding...');
     await connectDB();
+    console.log('Connected to database successfully');
 
-    // Clear existing users
+    // Clear existing data
+    console.log('Clearing existing data...');
     await User.deleteMany({});
+    await Project.deleteMany({});
+    console.log('Existing data cleared');
 
-    // Hash passwords and create users
-    const hashedUsers = await Promise.all(
-      sampleUsers.map(async (user) => ({
-        ...user,
-        password: await bcrypt.hash(user.password, 10)
+    // Filter out your email from students array to avoid duplicates
+    const filteredStudents = students.filter(student => student.email !== "23r21a6759@mlrit.ac.in");
+
+    // Prepare users with hashed passwords
+    console.log('Hashing passwords for', filteredStudents.length + 1, 'users...');
+    const hashedUsers = await Promise.all([
+      // Add your user first
+      {
+        name: "Tatineni Mahima",
+        email: "23r21a6759@mlrit.ac.in",
+        password: await bcrypt.hash('password123', 10),
+        role: 'user',
+        skills: ["JavaScript", "React", "Node.js", "MongoDB", "Docker"],
+        bio: "Tatineni Mahima is a student at MLRIT studying CSD.",
+        education: [
+          {
+            school: "MLRIT",
+            degree: "B.Tech CSD",
+            startYear: 2023,
+            endYear: 2027
+          }
+        ]
+      },
+      // Then add all other students
+      ...filteredStudents.map(async (student) => ({
+        name: student.name,
+        email: student.email,
+        password: await bcrypt.hash('password123', 10),
+        role: 'user',
+        skills: student.skills,
+        bio: `${student.name} is a student at ${student.college} studying ${student.department}.`,
+        education: [
+          {
+            school: student.college,
+            degree: `B.Tech ${student.department}`,
+            startYear: 2023,
+            endYear: 2027
+          }
+        ]
       }))
-    );
+    ]);
+    console.log('Passwords hashed successfully');
 
-    await User.insertMany(hashedUsers);
+    // Insert new users
+    console.log('Inserting users into database...');
+    const result = await User.insertMany(hashedUsers, { ordered: true });
+    console.log('Successfully inserted', result.length, 'users');
 
-    return NextResponse.json({ message: 'Sample data seeded successfully' });
+    // Create projects
+    console.log('Creating projects...');
+    const projects = [
+      {
+        title: 'AI-Powered Study Assistant',
+        description: 'An intelligent study assistant that helps students learn better using machine learning and natural language processing. Features include personalized learning paths, automated quiz generation, and real-time doubt resolution.',
+        skills: ['Python', 'Machine Learning', 'NLP', 'React', 'MongoDB'],
+        status: 'In Progress',
+        lead: result[0]._id, // Tatineni Mahima
+        members: [
+          result[0]._id,
+          result[5]._id,
+          result[10]._id,
+          result[15]._id,
+          result[20]._id
+        ],
+        joinRequests: []
+      },
+      {
+        title: 'Smart Campus Navigation',
+        description: 'A mobile app for navigating college campuses with real-time updates and location-based services. Includes features like class schedule integration, room finder, and emergency alerts.',
+        skills: ['React Native', 'Node.js', 'MongoDB', 'Google Maps API'],
+        status: 'Planning',
+        lead: result[0]._id,
+        members: [
+          result[0]._id,
+          result[7]._id,
+          result[12]._id,
+          result[17]._id,
+          result[22]._id
+        ],
+        joinRequests: []
+      },
+      {
+        title: 'Virtual Study Groups',
+        description: 'A platform for students to create and join virtual study groups with real-time collaboration features. Includes video conferencing, shared whiteboard, and document collaboration.',
+        skills: ['React', 'Node.js', 'WebRTC', 'MongoDB', 'Socket.io'],
+        status: 'Recruiting',
+        lead: result[0]._id,
+        members: [
+          result[0]._id,
+          result[8]._id,
+          result[13]._id,
+          result[18]._id,
+          result[23]._id
+        ],
+        joinRequests: []
+      },
+      {
+        title: 'Student Resource Hub',
+        description: 'A centralized platform for sharing and accessing academic resources, notes, and study materials. Features include resource categorization, search functionality, and user ratings.',
+        skills: ['Django', 'React', 'PostgreSQL', 'AWS S3'],
+        status: 'Planning',
+        lead: result[0]._id,
+        members: [
+          result[0]._id,
+          result[9]._id,
+          result[14]._id,
+          result[19]._id,
+          result[24]._id
+        ],
+        joinRequests: []
+      },
+      {
+        title: 'Smart Attendance System',
+        description: 'An automated attendance system using facial recognition and QR codes. Includes features like real-time attendance tracking, automated reports, and integration with existing college systems.',
+        skills: ['Python', 'OpenCV', 'React', 'Node.js', 'MongoDB'],
+        status: 'In Progress',
+        lead: result[0]._id,
+        members: [
+          result[0]._id,
+          result[11]._id,
+          result[16]._id,
+          result[21]._id,
+          result[26]._id
+        ],
+        joinRequests: []
+      },
+      {
+        title: 'College Event Management',
+        description: 'A comprehensive platform for managing college events, workshops, and competitions. Features include event registration, automated notifications, and feedback collection.',
+        skills: ['React', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
+        status: 'Recruiting',
+        lead: result[0]._id,
+        members: [
+          result[0]._id,
+          result[6]._id,
+          result[25]._id,
+          result[27]._id,
+          result[28]._id
+        ],
+        joinRequests: []
+      }
+    ];
+
+    // Insert new projects
+    const projectResult = await Project.insertMany(projects);
+    console.log('Successfully inserted', projectResult.length, 'projects');
+
+    // Verify the final counts
+    const finalUserCount = await User.countDocuments();
+    const finalProjectCount = await Project.countDocuments();
+
+    return NextResponse.json({ 
+      message: 'Sample data added successfully',
+      usersAdded: result.length,
+      totalUsers: finalUserCount,
+      projectsAdded: projectResult.length,
+      totalProjects: finalProjectCount
+    });
   } catch (error) {
-    console.error('Error seeding data:', error);
+    console.error('Seeding error:', error);
     return NextResponse.json(
-      { error: 'Failed to seed data' },
+      { error: 'Failed to seed database' },
       { status: 500 }
     );
   }

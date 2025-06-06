@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -12,8 +13,20 @@ export default function Users() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showCollabModal, setShowCollabModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [collabMessage, setCollabMessage] = useState('');
   const { user } = useAuth();
   const router = useRouter();
+
+  const sampleMessage = `Hi! I'm ${user?.name || 'a 2nd year student'} from CSD-A,MLRIT. I noticed your skills in [relevant skills] and would love to collaborate on a project. I'm particularly interested in [specific area] and think we could create something great together. Would you be interested in discussing potential collaboration opportunities?`;
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      setCollabMessage(sampleMessage);
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -38,11 +51,13 @@ export default function Users() {
         throw new Error(data.error || 'Failed to fetch users');
       }
 
-      setUsers(data.users);
-      setTotalPages(data.totalPages);
+      setUsers(Array.isArray(data.users) ? data.users : []);
+      setTotalPages(data.totalPages || 1);
       setHasSearched(true);
     } catch (err) {
       setError(err.message);
+      setUsers([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -52,6 +67,39 @@ export default function Users() {
     e.preventDefault();
     setPage(1);
     fetchUsers();
+  };
+
+  const handleCollabRequest = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/collab-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          toUser: selectedUser.email,
+          fromUser: user.email,
+          message: collabMessage,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send collaboration request');
+      }
+
+      toast.success('Collaboration request sent successfully!');
+      setShowCollabModal(false);
+      setCollabMessage('');
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   if (!user) return null;
@@ -151,6 +199,19 @@ export default function Users() {
                           </div>
                         </div>
                       )}
+
+                      {/* Collaboration Request Button */}
+                      <div className="mt-4">
+                        <button
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setShowCollabModal(true);
+                          }}
+                          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900"
+                        >
+                          Request Collaboration
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -192,6 +253,56 @@ export default function Users() {
           </div>
         )}
       </div>
+
+      {/* Collaboration Request Modal */}
+      {showCollabModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-medium text-white mb-4">
+              Request Collaboration with {selectedUser.name}
+            </h3>
+            <form onSubmit={handleCollabRequest}>
+              <div className="mb-4">
+                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  rows="4"
+                  value={collabMessage}
+                  onChange={(e) => setCollabMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm placeholder-gray-400 bg-gray-700 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Press Tab for a sample message or write your own..."
+                  required
+                />
+                <p className="mt-2 text-xs text-gray-400">
+                  Tip: Press Tab to use a sample message template
+                </p>
+              </div>
+              <div className="flex justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCollabModal(false);
+                    setCollabMessage('');
+                    setSelectedUser(null);
+                  }}
+                  className="px-4 py-2 border border-gray-700 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-900"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900"
+                >
+                  Send Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Search, Filter } from 'lucide-react';
@@ -10,8 +10,198 @@ import StatusUpdateForm from '@/components/StatusUpdateForm';
 import ProjectDetailsModal from '@/components/ProjectDetailsModal';
 
 export default function Projects() {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState([
+    {
+      id: '1',
+      title: 'AI-Powered Learning Platform',
+      description: 'Developing an intelligent learning platform that adapts to individual student needs using machine learning algorithms.',
+      status: 'In Progress',
+      skills: ['React', 'Node.js', 'Python', 'TensorFlow', 'MongoDB'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-03-15'
+    },
+    {
+      id: '2',
+      title: 'Smart Campus Navigation',
+      description: 'Creating an AR-based navigation system for campus visitors and new students.',
+      status: 'Recruiting',
+      skills: ['Unity', 'C#', 'AR Core', 'Firebase', 'Google Maps API'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-03-10'
+    },
+    {
+      id: '3',
+      title: 'EcoTrack - Environmental Monitoring',
+      description: 'IoT-based system for monitoring and analyzing environmental parameters in real-time.',
+      status: 'Planning',
+      skills: ['IoT', 'Python', 'Raspberry Pi', 'Data Analysis', 'Cloud Computing'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-03-05'
+    },
+    {
+      id: '4',
+      title: 'Virtual Lab Simulator',
+      description: 'An interactive virtual laboratory platform for conducting science experiments in a safe, virtual environment.',
+      status: 'Recruiting',
+      skills: ['Three.js', 'WebGL', 'React', 'Node.js', 'WebRTC'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-03-01'
+    },
+    {
+      id: '5',
+      title: 'Smart Attendance System',
+      description: 'Automated attendance tracking system using facial recognition and geolocation.',
+      status: 'In Progress',
+      skills: ['Python', 'OpenCV', 'Flask', 'MongoDB', 'React Native'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-02-28'
+    },
+    {
+      id: '6',
+      title: 'Student Resource Hub',
+      description: 'Centralized platform for students to access study materials, assignments, and collaborate with peers.',
+      status: 'Planning',
+      skills: ['Next.js', 'TypeScript', 'Prisma', 'PostgreSQL', 'Tailwind CSS'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-02-25'
+    },
+    {
+      id: '7',
+      title: 'Campus Event Manager',
+      description: 'Digital platform for managing and promoting campus events, workshops, and activities.',
+      status: 'Recruiting',
+      skills: ['React', 'Node.js', 'Express', 'MongoDB', 'Socket.io'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-02-20'
+    },
+    {
+      id: '8',
+      title: 'Smart Library Management',
+      description: 'Automated library management system with RFID integration and digital catalog.',
+      status: 'In Progress',
+      skills: ['Java', 'Spring Boot', 'MySQL', 'React', 'RFID Integration'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-02-15'
+    },
+    {
+      id: '9',
+      title: 'Campus Safety App',
+      description: 'Mobile application for emergency alerts, safety reporting, and campus security features.',
+      status: 'Planning',
+      skills: ['Flutter', 'Firebase', 'Google Maps API', 'Push Notifications', 'REST APIs'],
+      lead: {
+        id: '1',
+        name: 'Mahima Tatineni',
+        email: '23r21a6759@mlrit.ac.in'
+      },
+      members: [
+        {
+          id: '1',
+          name: 'Mahima Tatineni',
+          email: '23r21a6759@mlrit.ac.in',
+          role: 'Team Lead'
+        }
+      ],
+      createdAt: '2024-02-10'
+    }
+  ]);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedProject, setSelectedProject] = useState(null);
@@ -27,28 +217,18 @@ export default function Projects() {
     email: 'random@example.com'
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch('/api/projects');
-      if (!response.ok) throw new Error('Failed to fetch projects');
-      const data = await response.json();
-      setProjects(data);
-    } catch (error) {
-      toast.error('Failed to load projects');
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
+    const search = searchTerm.toLowerCase();
+    const matchesSearch =
+      project.title.toLowerCase().includes(search) ||
+      project.description.toLowerCase().includes(search) ||
+      project.skills.some(skill => skill.toLowerCase().includes(search)) ||
+      project.lead?.name?.toLowerCase().includes(search) ||
+      project.lead?.email?.toLowerCase().includes(search) ||
+      (project.members && project.members.some(member =>
+        member.name?.toLowerCase().includes(search) ||
+        member.email?.toLowerCase().includes(search)
+      ));
     const matchesStatus = statusFilter === 'All' || project.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -191,7 +371,7 @@ export default function Projects() {
                         }}
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
                       >
-                        Request to Join
+                        Join Project
                       </button>
                     )}
                   </div>
@@ -205,31 +385,22 @@ export default function Projects() {
       {showJoinForm && selectedProject && (
         <JoinRequestForm
           project={selectedProject}
-          projectLead={selectedProject.lead}
-          onClose={() => {
-            setShowJoinForm(false);
-            setSelectedProject(null);
-          }}
+          onClose={() => setShowJoinForm(false)}
+          currentUser={currentUser}
         />
       )}
 
       {showStatusForm && selectedProject && (
         <StatusUpdateForm
           project={selectedProject}
-          onClose={() => {
-            setShowStatusForm(false);
-            setSelectedProject(null);
-          }}
+          onClose={() => setShowStatusForm(false)}
         />
       )}
 
       {showDetailsModal && selectedProject && (
         <ProjectDetailsModal
           project={selectedProject}
-          onClose={() => {
-            setShowDetailsModal(false);
-            setSelectedProject(null);
-          }}
+          onClose={() => setShowDetailsModal(false)}
         />
       )}
     </div>

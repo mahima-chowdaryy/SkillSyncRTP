@@ -1,50 +1,56 @@
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import bcrypt from 'bcryptjs';
 
 export async function POST(req) {
   try {
     const { name, email, password } = await req.json();
 
+    // Validate required fields
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { error: 'Name, email and password are required' },
+        { status: 400 }
+      );
+    }
+
+    // Connect to database
     await connectDB();
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User already exists' },
+        { error: 'User with this email already exists' },
         { status: 400 }
       );
     }
 
     // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new user
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
+      role: 'user',
+      skills: [],
+      bio: '',
+      education: []
     });
 
-    // Remove password from response
-    const userWithoutPassword = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    };
-
-    return NextResponse.json(
-      { message: 'User created successfully', user: userWithoutPassword },
-      { status: 201 }
-    );
+    // Return user data (excluding password)
+    const { password: _, ...userData } = user.toObject();
+    return NextResponse.json({
+      message: 'User created successfully',
+      user: userData
+    });
   } catch (error) {
     console.error('Signup error:', error);
     return NextResponse.json(
-      { error: 'Error creating user' },
+      { error: 'Failed to create user' },
       { status: 500 }
     );
   }

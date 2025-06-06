@@ -19,52 +19,49 @@ const verifyToken = (req) => {
 };
 
 // GET all users (with pagination)
-export async function GET(req) {
+export async function GET(request) {
   try {
-    const decoded = verifyToken(req);
-    if (!decoded) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page')) || 1;
-    const limit = parseInt(searchParams.get('limit')) || 10;
-    const search = searchParams.get('search') || '';
-
     await connectDB();
-
-    const query = {
-      _id: { $ne: decoded.userId }, // Exclude current user
-      ...(search && {
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { skills: { $regex: search, $options: 'i' } },
-        ],
-      }),
-    };
-
-    const users = await User.find(query)
-      .select('-password')
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    const total = await User.countDocuments(query);
-
+    
+    // Get search parameters from URL
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get('search') || searchParams.get('query');
+    const skills = searchParams.get('skills');
+    
+    // Build search criteria
+    let searchCriteria = {};
+    
+    if (query) {
+      searchCriteria.$or = [
+        { name: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } },
+        { bio: { $regex: query, $options: 'i' } },
+        { 'education.school': { $regex: query, $options: 'i' } },
+        { skills: { $regex: query, $options: 'i' } }
+      ];
+    }
+    
+    if (skills) {
+      const skillsArray = skills.split(',').map(skill => skill.trim());
+      searchCriteria.skills = { $in: skillsArray };
+    }
+    
+    // Find users matching criteria
+    const users = await User.find(searchCriteria)
+      .select('-password') // Exclude password from results
+      .sort({ name: 1 }); // Sort by name
+    
+    console.log('Search criteria:', searchCriteria);
+    console.log('Found users:', users.length);
+    
     return NextResponse.json({
       users,
-      pagination: {
-        total,
-        page,
-        pages: Math.ceil(total / limit),
-      },
+      totalPages: Math.ceil(users.length / 10) // Assuming 10 items per page
     });
   } catch (error) {
+    console.error('Error searching users:', error);
     return NextResponse.json(
-      { error: 'Error fetching users' },
+      { error: 'Failed to search users' },
       { status: 500 }
     );
   }

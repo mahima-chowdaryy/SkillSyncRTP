@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '@/context/AuthContext';
 
 export default function NewProject() {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -17,6 +19,12 @@ export default function NewProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) {
+      toast.error('Please login to create a project');
+      router.push('/login');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -24,15 +32,12 @@ export default function NewProject() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
           ...formData,
           skills: formData.skills.split(',').map(skill => skill.trim()),
-          lead: {
-            id: '1',
-            name: 'John Doe',
-            email: 'john@example.com'
-          }
+          lead: user._id
         }),
       });
 

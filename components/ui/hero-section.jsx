@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedGroup } from "@/components/ui/animated-group";
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const transitionVariants = {
   item: {
@@ -25,6 +27,25 @@ const transitionVariants = {
 };
 
 export function HeroSection() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleFindStudents = () => {
+    if (user) {
+      router.push('/users');
+    } else {
+      router.push('/login?redirect=/users');
+    }
+  };
+
+  const handleSkillShoutout = () => {
+    if (user) {
+      router.push('/shoutout');
+    } else {
+      router.push('/login?redirect=/shoutout');
+    }
+  };
+
   return (
     <>
       <main className="overflow-hidden">
@@ -37,7 +58,7 @@ export function HeroSection() {
           <div className="h-[80rem] -translate-y-[350px] absolute left-0 top-0 w-56 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
         </div>
         <section>
-          <div className="relative pt-24 md:pt-36">
+          <div className="relative pt-8 md:pt-12">
             <AnimatedGroup
               variants={{
                 container: {
@@ -106,28 +127,31 @@ export function HeroSection() {
                 >
                   <div
                     key={1}
-                    className="bg-foreground/10 rounded-[14px] border p-0.5"
+                    className="relative group"
                   >
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-primary/80 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
                     <Button
-                      asChild
                       size="lg"
-                      className="rounded-xl px-5 text-base"
+                      className="relative rounded-lg px-8 py-6 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white border-2 border-white/20 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:scale-105"
+                      onClick={handleFindStudents}
                     >
-                      <Link href="/users">
+                      <div className="flex items-center gap-3">
                         <span className="text-nowrap">Find Students</span>
-                      </Link>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right transition-transform duration-300 group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      </div>
                     </Button>
                   </div>
                   <Button
                     key={2}
-                    asChild
                     size="lg"
                     variant="ghost"
-                    className="h-10.5 rounded-xl px-5"
+                    className="h-10.5 rounded-xl px-5 border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:bg-primary/5"
+                    onClick={handleSkillShoutout}
                   >
-                    <Link href="/profile">
+                    <div className="flex items-center gap-2">
                       <span className="text-nowrap">Post a Skill Shoutout</span>
-                    </Link>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+                    </div>
                   </Button>
                 </AnimatedGroup>
               </div>
@@ -171,93 +195,170 @@ export function HeroSection() {
             </AnimatedGroup>
           </div>
         </section>
-        <section className="bg-background pb-16 pt-16 md:pb-32">
-          <div className="group relative m-auto max-w-5xl px-6">
-            <div className="absolute inset-0 z-10 flex scale-95 items-center justify-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
-              <Link
-                href="/users"
-                className="block text-sm duration-150 hover:opacity-75"
-              >
-                <span>See All Skills</span>
-                <ChevronRight className="ml-1 inline-block size-3" />
-              </Link>
+        <section className="py-24 bg-background">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Why Choose SkillSync?
+              </h2>
+              <p className="mt-4 text-lg text-foreground/60">
+                Connect, collaborate, and grow with fellow students
+              </p>
             </div>
-            <div className="group-hover:blur-xs mx-auto mt-12 grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-14">
-              <div className="flex">
-                <img
-                  className="mx-auto h-5 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/nvidia.svg"
-                  alt="Nvidia Logo"
-                  height="20"
-                  width="auto"
-                />
-              </div>
-              <div className="flex">
-                <img
-                  className="mx-auto h-4 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/column.svg"
-                  alt="Column Logo"
-                  height="16"
-                  width="auto"
-                />
-              </div>
-              <div className="flex">
-                <img
-                  className="mx-auto h-4 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/github.svg"
-                  alt="GitHub Logo"
-                  height="16"
-                  width="auto"
-                />
-              </div>
-              <div className="flex">
-                <img
-                  className="mx-auto h-5 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/nike.svg"
-                  alt="Nike Logo"
-                  height="20"
-                  width="auto"
-                />
-              </div>
-              <div className="flex">
-                <img
-                  className="mx-auto h-5 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
-                  alt="Lemon Squeezy Logo"
-                  height="20"
-                  width="auto"
-                />
-              </div>
-              <div className="flex">
-                <img
-                  className="mx-auto h-4 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/laravel.svg"
-                  alt="Laravel Logo"
-                  height="16"
-                  width="auto"
-                />
-              </div>
-              <div className="flex">
-                <img
-                  className="mx-auto h-7 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/lilly.svg"
-                  alt="Lilly Logo"
-                  height="28"
-                  width="auto"
-                />
-              </div>
-              <div className="flex">
-                <img
-                  className="mx-auto h-6 w-fit dark:invert"
-                  src="https://html.tailus.io/blocks/customers/openai.svg"
-                  alt="OpenAI Logo"
-                  height="24"
-                  width="auto"
-                />
-              </div>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              <AnimatedGroup
+                variants={transitionVariants}
+                className="group relative overflow-hidden rounded-2xl border bg-card p-6 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Find Your Team</h3>
+                  <p className="text-foreground/60">Connect with students who have complementary skills for your next project.</p>
+                </div>
+              </AnimatedGroup>
+
+              <AnimatedGroup
+                variants={transitionVariants}
+                className="group relative overflow-hidden rounded-2xl border bg-card p-6 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2 .5 3"/><path d="M9 18h6"/><path d="M10 22h4"/><path d="m2 2 20 20"/></svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Learn & Grow</h3>
+                  <p className="text-foreground/60">Exchange knowledge and learn new skills from your peers.</p>
+                </div>
+              </AnimatedGroup>
+
+              <AnimatedGroup
+                variants={transitionVariants}
+                className="group relative overflow-hidden rounded-2xl border bg-card p-6 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rocket"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Build Projects</h3>
+                  <p className="text-foreground/60">Collaborate on exciting projects and build your portfolio together.</p>
+                </div>
+              </AnimatedGroup>
             </div>
           </div>
         </section>
+        <section className="py-24 bg-background/50">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+              <AnimatedGroup variants={transitionVariants} className="text-center">
+                <div className="text-4xl font-bold text-primary mb-2">500+</div>
+                <div className="text-foreground/60">Active Students</div>
+              </AnimatedGroup>
+              <AnimatedGroup variants={transitionVariants} className="text-center">
+                <div className="text-4xl font-bold text-primary mb-2">100+</div>
+                <div className="text-foreground/60">Projects Created</div>
+              </AnimatedGroup>
+              <AnimatedGroup variants={transitionVariants} className="text-center">
+                <div className="text-4xl font-bold text-primary mb-2">50+</div>
+                <div className="text-foreground/60">Skills Shared</div>
+              </AnimatedGroup>
+              <AnimatedGroup variants={transitionVariants} className="text-center">
+                <div className="text-4xl font-bold text-primary mb-2">95%</div>
+                <div className="text-foreground/60">Success Rate</div>
+              </AnimatedGroup>
+            </div>
+          </div>
+        </section>
+        <section className="py-24 bg-background">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+                What Our Users Say
+              </h2>
+              <p className="text-foreground/60">
+                Hear from students who found their perfect team
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <AnimatedGroup
+                variants={transitionVariants}
+                className="group relative overflow-hidden rounded-2xl border bg-card p-6 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    AS
+                  </div>
+                  <div className="ml-4">
+                    <div className="font-semibold">Alex Smith</div>
+                    <div className="text-sm text-foreground/60">Computer Science</div>
+                  </div>
+                </div>
+                <p className="text-foreground/60">
+                  "SkillSync helped me find the perfect team for my final year project. The collaboration was seamless!"
+                </p>
+              </AnimatedGroup>
+
+              <AnimatedGroup
+                variants={transitionVariants}
+                className="group relative overflow-hidden rounded-2xl border bg-card p-6 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    MJ
+                  </div>
+                  <div className="ml-4">
+                    <div className="font-semibold">Maria Johnson</div>
+                    <div className="text-sm text-foreground/60">Data Science</div>
+                  </div>
+                </div>
+                <p className="text-foreground/60">
+                  "I learned so much from my peers on SkillSync. The platform made it easy to connect with like-minded students."
+                </p>
+              </AnimatedGroup>
+
+              <AnimatedGroup
+                variants={transitionVariants}
+                className="group relative overflow-hidden rounded-2xl border bg-card p-6 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    RK
+                  </div>
+                  <div className="ml-4">
+                    <div className="font-semibold">Ryan Kumar</div>
+                    <div className="text-sm text-foreground/60">Web Development</div>
+                  </div>
+                </div>
+                <p className="text-foreground/60">
+                  "The projects I've built through SkillSync have been great additions to my portfolio. Highly recommended!"
+                </p>
+              </AnimatedGroup>
+            </div>
+          </div>
+        </section>
+        <footer className="bg-background border-t border-border/40">
+          <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
+            <div className="flex justify-center space-x-6 md:order-2">
+              <Link href="/about" className="text-foreground/60 hover:text-foreground">
+                About
+              </Link>
+              <Link href="/help" className="text-foreground/60 hover:text-foreground">
+                Help
+              </Link>
+              <Link href="/projects" className="text-foreground/60 hover:text-foreground">
+                Projects
+              </Link>
+            </div>
+            <div className="mt-8 md:order-1 md:mt-0">
+              <p className="text-center text-sm leading-5 text-foreground/60">
+                &copy; {new Date().getFullYear()} SkillSync. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </footer>
       </main>
     </>
   );

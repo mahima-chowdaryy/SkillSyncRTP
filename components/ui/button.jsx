@@ -33,8 +33,15 @@ const buttonVariants = cva(
 
 const Button = React.forwardRef(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? React.Fragment : "button";
-
+    if (asChild && React.Children.count(props.children) === 1) {
+      // Clone the only child and pass className and other props
+      return React.cloneElement(props.children, {
+        className: cn(buttonVariants({ variant, size, className }), props.children.props.className),
+        ref,
+        ...props,
+      });
+    }
+    const Comp = "button";
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}

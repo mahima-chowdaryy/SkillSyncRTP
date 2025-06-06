@@ -19,7 +19,7 @@ export default function Shoutouts() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login?redirect=/profile');
+      router.push('/login?redirect=/shoutouts');
       return;
     }
     fetchShoutouts();
@@ -74,13 +74,13 @@ export default function Shoutouts() {
   if (!user) return null;
 
   return (
-    <div className="py-12 bg-gradient-to-b from-gray-900 to-black min-h-screen">
+    <div className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white sm:text-4xl">
             Skill Shoutouts
           </h1>
-          <p className="mt-4 text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="mt-3 text-xl text-gray-400">
             Find urgent projects that need your skills
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function Shoutouts() {
               id="urgency"
               value={filters.urgency}
               onChange={(e) => setFilters({ ...filters, urgency: e.target.value })}
-              className="block w-full rounded-lg border-gray-700 bg-gray-800/80 text-white shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/50 transition-all duration-300 sm:text-sm"
+              className="block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
             >
               <option value="all">All Urgency Levels</option>
               <option value="urgent">Urgent</option>
@@ -113,7 +113,7 @@ export default function Shoutouts() {
               id="projectType"
               value={filters.projectType}
               onChange={(e) => setFilters({ ...filters, projectType: e.target.value })}
-              className="block w-full rounded-lg border-gray-700 bg-gray-800/80 text-white shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/50 transition-all duration-300 sm:text-sm"
+              className="block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
             >
               <option value="all">All Project Types</option>
               <option value="academic">Academic</option>
@@ -133,28 +133,25 @@ export default function Shoutouts() {
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
               placeholder="Search by title, description, or skills..."
-              className="block w-full rounded-lg border-gray-700 bg-gray-800/80 text-white shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/50 transition-all duration-300 sm:text-sm"
+              className="block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
             />
           </div>
         </div>
 
         {error && (
-          <div className="rounded-lg bg-red-900/50 p-4 border border-red-500/30 mb-8">
+          <div className="rounded-md bg-red-900/50 p-4 mb-8">
             <div className="text-sm text-red-400">{error}</div>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
-            <p className="mt-4 text-gray-400">Loading shoutouts...</p>
-          </div>
+          <div className="text-center text-gray-400">Loading shoutouts...</div>
         ) : filteredShoutouts.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredShoutouts.map((shoutout) => (
               <div
                 key={shoutout._id}
-                className="bg-gray-800/50 overflow-hidden rounded-xl border border-gray-700 hover:border-gray-600 transition-all duration-300 transform hover:scale-[1.02]"
+                className="bg-gray-800/50 overflow-hidden rounded-xl border border-gray-700 hover:border-gray-600 transition-all duration-300"
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -190,11 +187,11 @@ export default function Shoutouts() {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-400">
-                      Posted by {shoutout.userId && shoutout.userId.name ? shoutout.userId.name : "Unknown"}
+                      Posted by {shoutout.userId?.name || "Unknown"}
                     </span>
                     <button
-                      onClick={() => shoutout.userId && shoutout.userId._id && router.push(`/dashboard/profile/${shoutout.userId._id}`)}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-gray-900 transition-all duration-300"
+                      onClick={() => shoutout.userId?._id && router.push(`/profile/${shoutout.userId._id}`)}
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-gray-900"
                     >
                       Contact
                     </button>

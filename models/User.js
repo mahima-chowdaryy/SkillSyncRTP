@@ -23,6 +23,36 @@ const userSchema = new mongoose.Schema({
   skills: [{
     type: String,
   }],
+  bio: {
+    type: String,
+    default: '',
+  },
+  education: [{
+    school: String,
+    degree: String,
+    startYear: Number,
+    endYear: Number,
+  }],
+  collabRequests: [{
+    from: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    to: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    message: String,
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending',
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  }],
   projects: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Project',

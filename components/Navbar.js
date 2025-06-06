@@ -12,15 +12,13 @@ const menuItems = [
   { name: "Find Students", href: "/users" },
   { name: "Projects", href: "/projects" },
   { name: "Resources", href: "/resources" },
+  { name: "Skill Shoutouts", href: "/profile" },
+  { name: "Dashboard", href: "/dashboard" },
   { name: "About", href: "/about" },
   { name: "Help", href: "/help" },
 ];
 
-const userMenuItems = [
-  { name: "Dashboard", href: "/dashboard" },
-  { name: "Profile", href: "/profile" },
-  { name: "Create Project", href: "/projects/new" },
-];
+const userMenuItems = [];
 
 const Logo = ({ className }) => {
   return (
@@ -144,7 +142,7 @@ export default function Navbar() {
                   <span>Sign Out</span>
                 </Button>
               ) : (
-                <>
+                <div className="flex gap-3">
                   <Button
                     asChild
                     size="sm"
@@ -153,9 +151,7 @@ export default function Navbar() {
                       isScrolled && "lg:hidden"
                     )}
                   >
-                    <Link href="/login">
-                      <span>Login</span>
-                    </Link>
+                    <Link href="/login" />
                   </Button>
                   <Button
                     asChild
@@ -165,23 +161,9 @@ export default function Navbar() {
                       isScrolled && "lg:hidden"
                     )}
                   >
-                    <Link href="/signup">
-                      <span>Sign Up</span>
-                    </Link>
+                    <Link href="/signup" />
                   </Button>
-                  <Button
-                    asChild
-                    size="sm"
-                    className={cn(
-                      "bg-white/10 hover:bg-white/20 text-white border-white/20",
-                      isScrolled && "lg:hidden"
-                    )}
-                  >
-                    <Link href="/signup">
-                      <span>Get Started</span>
-                    </Link>
-                  </Button>
-                </>
+                </div>
               )}
             </div>
           </div>

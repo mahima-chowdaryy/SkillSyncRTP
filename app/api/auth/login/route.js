@@ -29,9 +29,14 @@ export async function POST(req) {
       );
     }
 
-    // Generate JWT token
+    // Generate JWT token with consistent format
     const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
+      { 
+        id: user._id,
+        userId: user._id, // Include both for compatibility
+        email: user.email,
+        role: user.role 
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );

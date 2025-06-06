@@ -2,83 +2,54 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Project from '@/models/Project';
 import { verifyToken } from '@/lib/auth';
-import { sendEmail } from '@/lib/email';
+import { sendCollaborationEmail } from '@/lib/email';
 
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    const { userId } = await verifyToken(token);
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
-    }
-
     await connectDB();
-    const data = await request.json();
-    const { projectId, name, email, phone, availability, message } = data;
-
-    const project = await Project.findById(projectId)
-      .populate('lead', 'name email');
-
-    if (!project) {
-      return NextResponse.json(
-        { error: 'Project not found' },
-        { status: 404 }
-      );
+    
+    const token = req.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    // Add join request to project
-    project.joinRequests.push({
-      user: userId,
-      message: `
-Name: ${name}
-Email: ${email}
-Phone: ${phone}
-Availability: ${availability}
+    const decoded = await verifyToken(token);
+    if (!decoded.id) {
+      return NextResponse.json({ error: 'Invalid user ID in token' }, { status: 401 });
+    }
 
-Message:
-${message}
-      `,
-      status: 'Pending'
-    });
+    const { projectId, message, skills, availability } = await req.json();
 
-    await project.save();
+    // Get project details
+    const project = await Project.findById(projectId).populate('owner', 'name email');
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
 
-    // Send email to project lead
-    const emailContent = `
-Hello ${project.lead.name},
-
-You have received a new join request for your project "${project.title}".
-
-Request Details:
-${project.joinRequests[project.joinRequests.length - 1].message}
-
-You can review and respond to this request in your project dashboard.
-
-Best regards,
-SkillSync Team
-    `;
-
-    await sendEmail({
-      to: project.lead.email,
-      subject: `New Join Request for ${project.title}`,
-      text: emailContent
-    });
+    // Send email notification
+    try {
+      await sendCollaborationEmail({
+        toEmail: project.owner.email,
+        toName: project.owner.name,
+        fromName: decoded.name,
+        fromEmail: decoded.email,
+        message,
+        type: 'project',
+        projectTitle: project.title,
+        skills,
+        availability,
+        actionLink: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/requests`
+      });
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError);
+      // Continue with the request even if email fails
+    }
 
     return NextResponse.json({ message: 'Join request sent successfully' });
   } catch (error) {
-    console.error('Join request error:', error);
+    console.error('Error processing join request:', error);
     return NextResponse.json(
-      { error: 'Failed to process join request' },
+      { error: error.message || 'Failed to process join request' },
       { status: 500 }
     );
   }
